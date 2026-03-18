@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>프로토타입 체인 원정대</title>
+  <style>
+    :root {
+      --woowa-black: #222222;
+      --woowa-white: #ffffff;
+      --woowa-gray: #f4f4f4;
+      --woowa-border: #e0e0e0;
+      --accent-color: #32c5ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--woowa-white);
+      color: var(--woowa-black);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      padding: 2rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #intro-page {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    header {
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--woowa-black);
+      padding-bottom: 2rem;
+    }
+
+    .intro-img {
+      width: 100%;
+      max-width: 450px;
+      height: auto;
+      margin-bottom: 1.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .expedition-info {
+      background-color: var(--woowa-gray);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-top: 1.5rem;
+      text-align: left;
+    }
+
+    .info-row {
+      margin-bottom: 0.5rem;
+      display: flex;
+    }
+
+    .info-label {
+      font-weight: bold;
+      width: 100px;
+      flex-shrink: 0;
+    }
+
+    #quiz-page {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .quiz-layout {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .sidebar {
+      width: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background-color: var(--woowa-gray);
+      border-radius: 16px;
+      position: sticky;
+      top: 2rem;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .sidebar.active {
+      width: 420px;
+      opacity: 1;
+      padding: 2rem;
+      border: 1px solid var(--woowa-border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 8px;
+      background-color: var(--woowa-gray);
+      border-radius: 4px;
+      margin-right: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--woowa-black);
+      transition: width 0.3s ease;
+    }
+
+    .code-block {
+      background-color: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1.5rem;
+      border-radius: 12px;
+      overflow-x: auto;
+      font-family: 'Fira Code', 'Courier New', Courier, monospace;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      border: 1px solid #333;
+      white-space: pre;
+    }
+
+    /* Code Highlighting Colors */
+    .hl-keyword { color: #c586c0; font-weight: bold; }
+    .hl-string { color: #ce9178; }
+    .hl-comment { color: #6a9955; font-style: italic; }
+    .hl-func { color: #dcdcaa; }
+    .hl-number { color: #b5cea8; }
+    .hl-const { color: #4fc1ff; }
+    .hl-class { color: #4ec9b0; }
+
+    .feedback-item {
+      margin-bottom: 2rem;
+    }
+
+    .feedback-item h3 {
+      margin-bottom: 0.8rem;
+      font-size: 1.15rem;
+      color: var(--woowa-black);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feedback-item h3::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 18px;
+      background: var(--woowa-black);
+      border-radius: 2px;
+    }
+
+    .reflection-box {
+      background-color: #fff9db;
+      padding: 1.2rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      border-left: 4px solid #fab005;
+      color: #444;
+    }
+
+    .character-img-box {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 50%;
+      width: 140px;
+      height: 140px;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .side-character {
+      width: 110px;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .btn {
+      background-color: var(--woowa-black);
+      color: white;
+      padding: 1rem 2.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn.secondary {
+      background-color: white;
+      color: var(--woowa-black);
+      border: 2px solid var(--woowa-black);
+    }
+
+    .btn:disabled {
+      background-color: #ccc;
+      border-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      gap: 1rem;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 1rem;
+    }
+
+    #result-page {
+      text-align: center;
+      display: none;
+      padding: 3rem 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @media (max-width: 950px) {
+      .quiz-layout {
+        flex-direction: column;
+      }
+      .sidebar.active {
+        width: 100%;
+        position: static;
+        margin-top: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- 초기 페이지 -->
+  <div id="intro-page" class="fade-in">
+    <header>
+      <img src="행성과 별요정.png" onerror="this.src='https://img.icons8.com/clouds/400/galaxy.png'" class="intro-img" alt="팀 프로젝트 행성이">
+      <h1>프로토타입 체인 원정대</h1>
+      <p>우아한테크코스 8기 프론트엔드 원정대와 함께하는 JS 딥다이브</p>
+    </header>
+
+    <div class="expedition-info">
+      <div class="info-row">
+        <span class="info-label">원정대장</span>
+        <span>안톨리니, 아지</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">원정대원</span>
+        <span>라바, 두부, 지오, 포도, 이스타, 파라디</span>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 3rem;">
+      <button class="btn" onclick="startQuiz()">원정 시작하기</button>
+      <p id="resume-text" style="margin-top: 1rem; font-size: 0.9rem; color: #888; display: none;">이전에 탐험하던 지점이 있습니다. 이어서 시작합니다.</p>
+    </div>
+  </div>
+
+  <!-- 퀴즈 페이지 -->
+  <div id="quiz-page">
+    <div class="quiz-header">
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+      </div>
+      <span id="question-number" style="font-weight: 700; font-variant-numeric: tabular-nums;">문제 1 / 5</span>
+    </div>
+
+    <div class="quiz-layout">
+      <!-- 왼쪽: 문제 영역 -->
+      <div class="main-content" id="question-area">
+        <div id="question-content" class="fade-in"></div>
+        <div class="nav-buttons">
+          <button id="prev-btn" class="btn secondary" onclick="goToPrevQuestion()">이전 문제</button>
+          <div class="nav-right">
+            <button id="check-btn" class="btn" onclick="checkAnswer()">정답 확인</button>
+            <button id="next-btn" class="btn" style="display: none;" onclick="goToNextQuestion()">다음 문제로</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 사이드바 해설 영역 -->
+      <aside id="sidebar" class="sidebar">
+        <div class="character-img-box">
+          <img id="side-character-img" src="" class="side-character" alt="행성 캐릭터">
+        </div>
+        
+        <div class="feedback-item">
+          <div id="answer-status"></div>
+        </div>
+
+        <div class="feedback-item">
+          <h3>해설</h3>
+          <p id="exp-text" style="font-size: 0.95rem; color: #444; white-space: pre-wrap;"></p>
+        </div>
+
+        <div class="feedback-item">
+          <h3>고민해볼 점</h3>
+          <div class="reflection-box" id="ref-text"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- 결과 페이지 -->
+  <div id="result-page" class="fade-in">
+    <img src="행성과 별요정.png" onerror="this.src='https://img.icons8.com/clouds/400/galaxy.png'" alt="원정 성공" style="width: 280px; margin-bottom: 1.5rem;">
+    <h1>원정 완료!</h1>
+    <p style="font-size: 1.2rem; color: #555;">축하합니다! 프로토타입 체인의 비밀을 모두 밝혀냈습니다.</p>
+    
+    <div class="expedition-info" style="text-align: center; margin-top: 2.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+      <p style="font-weight: 600; margin-bottom: 0.5rem;">프론트엔드 원정대원의 증표</p>
+      <p style="font-size: 0.95rem;">자바스크립트의 깊은 내부 원리를 이해한 당신은<br>이제 더 견고한 애플리케이션을 설계할 준비가 되었습니다.</p>
+    </div>
+    
+    <div style="margin-top: 3rem; display: flex; justify-content: center; gap: 1rem;">
+      <button class="btn" onclick="resetQuiz()">다시 탐험하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const characters = [
+    "기본 행성.png",
+    "커피 수혈중인 행성.png",
+    "프로그래밍을 하는 행성.png",
+    "한쪽 다리를 든 행성.png",
+    "만세하는 행성.png"
+  ];
+
+  const quizData = [
+    {
+      id: 1,
+      question: '다음 코드의 실행 결과를 예상해보세요.',
+      code: `const arr = [1, 2, 3];\n\nconsole.log(arr.hasOwnProperty('pop'));\nconsole.log(arr.hasOwnProperty('toString'));\nconsole.log(arr.hasOwnProperty('length'));`,
+      answer: "false, false, true",
+      explanation: "pop은 Array.prototype에 정의된 메서드이고, toString도 Object.prototype(체인 상위)에 존재합니다. 둘 다 arr의 own property가 아니라 체인을 통해 빌려 쓰는 것이므로 false입니다.\n\n반면 length는 배열 인스턴스가 생성될 때 직접 소유하게 되는 own property이므로 true를 반환합니다.",
+      reflection: "프로토타입에 있는 건 메서드만이 아닙니다. 반대로, 인스턴스가 직접 소유하는 건 값(data)만이 아닙니다. “이 프로퍼티의 실제 소유주가 누구인가”를 구분하는 것이 체인 이해의 시작입니다."
+    },
+    {
+      id: 2,
+      question: 'console.log의 출력 결과를 순서대로 예상해보세요.',
+      code: `function Car() {}\nCar.prototype.wheels = 4;\n\nconst myCar = new Car();\n\nmyCar.wheels = 6;\nconsole.log(myCar.wheels);\n\ndelete myCar.wheels;\nconsole.log(myCar.wheels);`,
+      answer: "6, 4",
+      explanation: "1. 프로퍼티 섀도잉: myCar.wheels = 6;을 실행하면 인스턴스 자체에 wheels 속성이 생성되어 부모의 prototype 속성을 가립니다.\n2. delete의 동작: delete는 인스턴스 자신의 고유 속성만 삭제합니다.\n3. 체인 재탐색: 자신의 wheels가 삭제되면 다시 프로토타입 체인을 타고 올라가 Car.prototype.wheels의 값인 4를 찾아냅니다.",
+      reflection: "부모의 원본 값을 보호하면서도 개별 인스턴스에서 값을 덮어쓰는(Shadowing) 메커니즘은 메모리 효율과 유연성을 동시에 잡는 아주 영리한 설계입니다."
+    },
+    {
+      id: 3,
+      question: '두 console.log의 출력 배열을 예상해보세요.',
+      code: `function Game() {}\nGame.prototype.scores = [10, 20];\n\nconst player1 = new Game();\nconst player2 = new Game();\n\nplayer1.scores.push(30);\n\nconsole.log(player1.scores);\nconsole.log(player2.scores);`,
+      answer: "[10, 20, 30], [10, 20, 30]",
+      explanation: "프로토타입 객체에 정의된 참조 타입(배열, 객체 등)은 모든 인스턴스가 '동일한 메모리 주소'를 공유합니다.\n\nplayer1.scores.push(30)은 인스턴스에 새로운 배열을 할당하는 것이 아니라, 체인을 타고 올라가 공유된 배열 원본을 직접 수정하는 행위입니다. 따라서 player2에게도 변화가 나타납니다.",
+      reflection: "인스턴스마다 독립적인 상태를 가져야 하는 데이터(배열, 객체 등)는 반드시 생성자 함수 내부에서 `this`를 통해 선언해야 예상치 못한 버그를 막을 수 있습니다."
+    },
+    {
+      id: 4,
+      question: '각 결과(true/false)를 예상해보세요.',
+      code: `function Car1(brand) {\n  this.brand = brand;\n  this.drive = function() { console.log('vroom'); }\n}\nconst car1 = new Car1('hyundai');\n\nclass Car2 {\n  constructor(name) { this.name = name; }\n  drive() { console.log('vroom'); }\n}\nconst car2 = new Car2('kia');\n\nconsole.log(car1.hasOwnProperty('drive'));\nconsole.log(car2.hasOwnProperty('drive'));`,
+      answer: "true, false",
+      explanation: "생성자 함수 내부에서 this.method로 정의한 car1의 drive는 인스턴스마다 별도로 생성되어 소유됩니다(Own Property).\n\n반면 ES6 Class 문법에서 정의한 메서드는 자바스크립트 엔진에 의해 자동으로 Prototype 객체에 등록됩니다. 따라서 car2는 drive를 소유하지 않고 체인을 통해 공유합니다.",
+      reflection: "메서드를 프로토타입에 두는 것이 메모리 상에서 왜 유리할까요? 1,000개의 자동차 객체를 만들 때 함수 객체가 1개 생기는 것과 1,000개 생기는 것의 차이를 생각해보세요."
+    },
+    {
+      id: 5,
+      question: '최종 출력 내용과 공유 여부를 예상해보세요.',
+      code: `class Shape {\n  constructor(name) { this.name = name; }\n  describe() { return \`나는 \${this.name}입니다.\`; }\n}\n\nclass Circle extends Shape {\n  constructor(radius) {\n    super('원');\n    this.radius = radius;\n  }\n  describe() {\n    return super.describe() + \` 반지름은 \${this.radius}입니다.\`;\n  }\n}\nconst c = new Circle(5);\n\nconsole.log(c.describe());\nconsole.log(c.describe === Circle.prototype.describe);`,
+      answer: "나는 원입니다. 반지름은 5입니다., true",
+      explanation: "Circle은 Shape를 상속받으며 describe 메서드를 오버라이딩합니다.\n\n1. \`super.describe()\`는 프로토타입 체인을 타고 부모 클래스의 메서드를 호출합니다.\n2. 인스턴스 \`c\`의 \`describe\`는 \`Circle.prototype\`에 있는 함수와 동일한 참조를 가집니다.",
+      reflection: "클래스 상속은 결국 '프로토타입 체인'이라는 거대한 지도의 연결 고리를 확장하는 것입니다. \`super\` 키워드가 내부적으로 부모의 프로토타입을 어떻게 찾아가는지 상상해보세요."
+    }
+  ];
+
+  let currentQuestionIndex = 0;
+
+  /**
+   * 버그 없는 JS 하이라이터
+   * 텍스트를 태그 단위로 쪼개서, HTML 태그가 아닌 부분만 순차적으로 치환합니다.
+   */
+  function highlightJS(code) {
+    if (!code) return "";
+
+    // 기초 엔티티 치환
+    let text = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    // 매칭 규칙 정의 (순서가 중요함)
+    const rules = [
+      { reg: /\/\/.*$/gm, cls: 'hl-comment' }, // 주석
+      { reg: /(['"`])(.*?)\1/g, cls: 'hl-string' }, // 문자열
+      { reg: /\b(const|let|var|function|class|extends|constructor|super|return|delete|new|this)\b/g, cls: 'hl-keyword' },
+      { reg: /\b(console\.log|push|hasOwnProperty|describe|drive)\b/g, cls: 'hl-func' },
+      { reg: /\b(true|false)\b/g, cls: 'hl-const' },
+      { reg: /\b(Car|Game|Shape|Circle|Array|Object|Car1|Car2)\b/g, cls: 'hl-class' },
+      { reg: /\b(\d+)\b/g, cls: 'hl-number' }
+    ];
+
+    // 규칙별로 하나씩 적용하되, 이미 span 처리가 된 곳은 건드리지 않음
+    rules.forEach(rule => {
+      // 텍스트를 <span...>...</span> 기준으로 쪼갠 뒤, 태그가 아닌 부분만 골라 치환
+      const parts = text.split(/(<span[^>]*>.*?<\/span>)/g);
+      text = parts.map(part => {
+        if (part.startsWith('<span')) return part; // 이미 처리된 태그는 건너뜀
+        return part.replace(rule.reg, (match) => `<span class="${rule.cls}">${match}</span>`);
+      }).join('');
+    });
+
+    return text;
+  }
+
+  window.onload = () => {
+    const savedIndex = localStorage.getItem('proto_expedition_step');
+    if (savedIndex && parseInt(savedIndex) < quizData.length) {
+      currentQuestionIndex = parseInt(savedIndex);
+      document.getElementById('resume-text').style.display = 'block';
+    }
+  };
+
+  function startQuiz() {
+    document.getElementById('intro-page').style.display = 'none';
+    document.getElementById('quiz-page').style.display = 'block';
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const quiz = quizData[currentQuestionIndex];
+    const container = document.getElementById('question-content');
+    const sidebar = document.getElementById('sidebar');
+    
+    sidebar.classList.remove('active');
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('check-btn').style.display = 'block';
+    document.getElementById('prev-btn').disabled = (currentQuestionIndex === 0);
+
+    document.getElementById('question-number').innerText = `문제 ${currentQuestionIndex + 1} / ${quizData.length}`;
+    document.getElementById('progress-fill').style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+
+    container.innerHTML = `
+      <div class="question-box">
+        <h2 style="margin-bottom:1rem; font-size:1.4rem; letter-spacing:-0.5px;">Q${currentQuestionIndex + 1}. ${quiz.question}</h2>
+        <div class="code-block">${highlightJS(quiz.code)}</div>
+        <div style="margin-top: 1.5rem; padding: 1.5rem; background: #f8f9fa; border-radius: 12px; border: 1px dashed #ced4da;">
+          <p style="margin-bottom: 0.5rem; font-weight: 700; color: var(--woowa-black);">🤔 결과가 어떻게 나올지 예상되시나요?</p>
+          <p style="font-size: 0.9rem; color: #666; line-height: 1.4;">코드의 흐름을 천천히 따라가 본 뒤 '정답 확인' 버튼을 눌러 행성이의 해설을 들어보세요.</p>
+        </div>
+      </div>
+    `;
+    container.className = 'fade-in';
+  }
+
+  function checkAnswer() {
+    const quiz = quizData[currentQuestionIndex];
+    const sidebar = document.getElementById('sidebar');
+    const status = document.getElementById('answer-status');
+    const charImg = document.getElementById('side-character-img');
+    
+    charImg.src = characters[currentQuestionIndex % characters.length];
+    charImg.onerror = () => { charImg.src = 'https://img.icons8.com/clouds/200/planet.png'; };
+
+    status.innerHTML = `
+      <h2 style="margin-bottom:0.8rem; font-size:1.2rem;">✨ 예상 결과 확인</h2>
+      <div class="code-block" style="background:#fff; color:#333; border:1px solid #dee2e6; padding: 1rem; font-size:0.9rem; margin:0;">${highlightJS(quiz.answer)}</div>`;
+
+    document.getElementById('exp-text').innerText = quiz.explanation;
+    document.getElementById('ref-text').innerText = quiz.reflection;
+    
+    sidebar.classList.add('active');
+    document.getElementById('check-btn').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'block';
+
+    localStorage.setItem('proto_expedition_step', currentQuestionIndex);
+  }
+
+  function goToNextQuestion() {
+    if (currentQuestionIndex < quizData.length - 1) {
+      currentQuestionIndex++;
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }
+
+  function goToPrevQuestion() {
+    if (currentQuestionIndex > 0) {
+      currentQuestionIndex--;
+      renderQuestion();
+    }
+  }
+
+  function showResult() {
+    document.getElementById('quiz-page').style.display = 'none';
+    document.getElementById('result-page').style.display = 'block';
+    localStorage.removeItem('proto_expedition_step');
+  }
+
+  function resetQuiz() {
+    localStorage.clear();
+    currentQuestionIndex = 0;
+    document.getElementById('result-page').style.display = 'none';
+    document.getElementById('intro-page').style.display = 'block';
+    document.getElementById('resume-text').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
