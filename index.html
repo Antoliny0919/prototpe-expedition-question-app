@@ -58,7 +58,6 @@
       height: auto;
       margin-bottom: 1.5rem;
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
 
     h1 {
@@ -296,9 +295,9 @@
   <!-- 초기 페이지 -->
   <div id="intro-page" class="fade-in">
     <header>
-      <img src="행성과 별요정.png" onerror="this.src='https://img.icons8.com/clouds/400/galaxy.png'" class="intro-img" alt="팀 프로젝트 행성이">
+      <img src="./images//프로그래밍을 하는 행성.png" class="intro-img" alt="팀 프로젝트 행성이">
       <h1>프로토타입 체인 원정대</h1>
-      <p>우아한테크코스 8기 프론트엔드 원정대와 함께하는 JS 딥다이브</p>
+      <p>프론트엔드 크루와 함께하는 JS 프로토타입 체인 딥다이브</p>
     </header>
 
     <div class="expedition-info">
@@ -343,7 +342,7 @@
       <!-- 오른쪽: 사이드바 해설 영역 -->
       <aside id="sidebar" class="sidebar">
         <div class="character-img-box">
-          <img id="side-character-img" src="" class="side-character" alt="행성 캐릭터">
+          <img id="side-character-img" src="./images//기본 행성.png" class="side-character" alt="행성 캐릭터">
         </div>
         
         <div class="feedback-item">
@@ -514,8 +513,6 @@
     const status = document.getElementById('answer-status');
     const charImg = document.getElementById('side-character-img');
     
-    charImg.src = characters[currentQuestionIndex % characters.length];
-    charImg.onerror = () => { charImg.src = 'https://img.icons8.com/clouds/200/planet.png'; };
 
     status.innerHTML = `
       <h2 style="margin-bottom:0.8rem; font-size:1.2rem;">✨ 예상 결과 확인</h2>
