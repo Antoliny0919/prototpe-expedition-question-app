@@ -400,7 +400,7 @@
       question: '다음 코드의 실행 결과를 예상해보세요.',
       code: `const arr = [1, 2, 3];\n\nconsole.log(arr.hasOwnProperty('pop'));\nconsole.log(arr.hasOwnProperty('toString'));\nconsole.log(arr.hasOwnProperty('length'));`,
       answer: "false, false, true",
-      explanation: "pop은 Array.prototype에 정의된 메서드이고, toString도 Object.prototype(체인 상위)에 존재합니다. 둘 다 arr의 own property가 아니라 체인을 통해 빌려 쓰는 것이므로 false입니다.\n\n반면 length는 배열 인스턴스가 생성될 때 직접 소유하게 되는 own property이므로 true를 반환합니다.",
+      explanation: "pop은 Array.prototype에 정의된 메서드이고, toString도 Object.prototype(체인 상위)에 존재합니다. 둘 다 arr의 own property가 아니라 체인을 통해 빌려 쓰는 것이므로 false입니다.\n\n반면 length는 배열 인스턴스가 생성될 때 직접 소유하게 되는 own property이므로 true를 반환합니다.\n\n왜 length는 prototype이 아닌 인스턴스 자신이 가지고 있을까요?\n\nlength는 배열마다 다른 값을 가지는 '상태(state)'입니다. [1,2,3]의 length는 3이고, [1,2,3,4]의 length는 4입니다. 만약 length가 Array.prototype에 있다면 모든 배열이 같은 하나의 값을 공유하게 되어 이런 차이를 표현할 수 없습니다.\n\n반면 pop이나 toString 같은 메서드는 어떤 배열이 호출해도 동작 방식이 동일한 '행동(behavior)'입니다. 구현 자체가 인스턴스마다 달라질 필요가 없으므로, prototype에 하나만 올려두고 모든 인스턴스가 공유하는 것이 메모리 효율 면에서 훨씬 유리합니다.\n\n정리하면 prototype에는 모든 인스턴스가 공유할 수 있는 '공통 행동'이, 인스턴스 자신에는 개별적으로 달라지는 '고유한 상태'가 담깁니다.",
       reflection: "프로토타입에 있는 건 메서드만이 아닙니다. 반대로, 인스턴스가 직접 소유하는 건 값(data)만이 아닙니다. “이 프로퍼티의 실제 소유주가 누구인가”를 구분하는 것이 체인 이해의 시작입니다."
     },
     {
