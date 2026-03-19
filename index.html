@@ -425,7 +425,7 @@
       id: 4,
       keywords: ['인스턴스 메서드 vs 프로토타입 메서드', '메모리 효율'],
       question: '각 결과(true/false)를 예상해보세요.',
-      code: `function Car1(brand) {\n  this.brand = brand;\n  this.drive = function() { console.log('vroom'); }\n}\nconst car1 = new Car1('hyundai');\n\nclass Car2 {\n  constructor(name) { this.name = name; }\n  drive() { console.log('vroom'); }\n}\nconst car2 = new Car2('kia');\n\nconsole.log(car1.hasOwnProperty('drive'));\nconsole.log(car2.hasOwnProperty('drive'));`,
+      code: `function Car1(name) {\n  this.name = name;\n  this.drive = function() { console.log('vroom'); }\n}\nconst car1 = new Car1('hyundai');\n\nclass Car2 {\n  constructor(name) { this.name = name; }\n  drive() { console.log('vroom'); }\n}\nconst car2 = new Car2('kia');\n\nconsole.log(car1.hasOwnProperty('drive'));\nconsole.log(car2.hasOwnProperty('drive'));`,
       answer: "true, false",
       explanation: "생성자 함수와 ES6 Class는 메서드를 두는 위치가 다릅니다.\n\n1. car1.drive: this.method 형태로 선언해 인스턴스가 직접 소유합니다(Own Property). → true\n2. car2.drive: Class 문법에서 정의한 메서드는 엔진이 자동으로 prototype에 등록합니다. 인스턴스가 소유하지 않고 체인으로 공유합니다. → false",
       reflection: "메서드를 프로토타입에 두는 것이 메모리 상에서 왜 유리할까요? 1,000개의 자동차 객체를 만들 때 함수 객체가 1개 생기는 것과 1,000개 생기는 것의 차이를 생각해보세요."
