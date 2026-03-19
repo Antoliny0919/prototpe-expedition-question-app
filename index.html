@@ -434,9 +434,9 @@
       id: 5,
       keywords: ['다형성', '메서드 오버라이딩'],
       question: '세 console.log의 출력 결과를 순서대로 예상해보세요.',
-      code: `class Animal {\n  constructor(name) {\n    this.name = name;\n  }\n  speak() { return \`\${this.name}이(가) 소리를 낸다.\`; }\n}\n\nclass Dog extends Animal {\n  speak() { return '왈왈!'; }\n}\n\nclass Cat extends Animal {\n  speak() { return '야옹!'; }\n}\n\nconst d = new Dog('멍멍이');\nconst c = new Cat('야옹이');\nconst a = new Animal('동물');\n\nconsole.log(d.speak());\nconsole.log(c.speak());\nconsole.log(a.speak());`,
+      code: `class Animal {\n  constructor(name) {\n    this.name = name;\n  }\n  speak() { return \`\${this.name}이(가) 소리를 낸다.\`; }\n}\n\nclass Dog extends Animal {\n  speak() { return '왈왈!'; }\n}\n\nclass Cat extends Animal {\n  speak() { return '야옹!'; }\n}\n\nconst dog = new Dog('멍멍이');\nconst cat = new Cat('야옹이');\nconst animal = new Animal('동물');\n\nconsole.log(dog.speak());\nconsole.log(cat.speak());\nconsole.log(animal.speak());`,
       answer: "'왈왈!', '야옹!', '동물이(가) 소리를 낸다.'",
-      explanation: "Dog와 Cat은 Animal의 speak 메서드를 오버라이딩(재정의)합니다.\n\n1. d.speak(): 프로토타입 체인에서 speak를 탐색하면 Dog.prototype.speak가 먼저 발견됩니다. → '왈왈!'\n2. c.speak(): 마찬가지로 Cat.prototype.speak가 먼저 발견됩니다. → '야옹!'\n3. a.speak(): Animal 인스턴스는 오버라이딩된 메서드가 없으므로 Animal.prototype.speak를 그대로 호출합니다. → '동물이(가) 소리를 낸다.'\n\n같은 speak()라는 이름을 호출하지만, 실제로 실행되는 코드는 각 객체의 타입에 따라 달라집니다. 이것이 다형성(Polymorphism)입니다.",
+      explanation: "Dog와 Cat은 Animal의 speak 메서드를 오버라이딩(재정의)합니다.\n\n1. dog.speak(): 프로토타입 체인에서 speak를 탐색하면 Dog.prototype.speak가 먼저 발견됩니다. → '왈왈!'\n2. cat.speak(): 마찬가지로 Cat.prototype.speak가 먼저 발견됩니다. → '야옹!'\n3. animal.speak(): Animal 인스턴스는 오버라이딩된 메서드가 없으므로 Animal.prototype.speak를 그대로 호출합니다. → '동물이(가) 소리를 낸다.'\n\n같은 speak()라는 이름을 호출하지만, 실제로 실행되는 코드는 각 객체의 타입에 따라 달라집니다. 이것이 다형성(Polymorphism)입니다.",
       reflection: "다형성의 핵심은 '같은 인터페이스, 다른 동작'입니다. 동일한 speak()를 호출해도 각 객체가 자신의 프로토타입에서 먼저 메서드를 찾기 때문에 서로 다른 결과를 냅니다. Dog와 Cat에서 speak()를 지워버리면 어떤 결과가 나올까요?"
     }
   ];
