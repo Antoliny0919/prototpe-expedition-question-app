@@ -432,12 +432,12 @@
     },
     {
       id: 5,
-      keywords: ['다형성'],
-      question: '최종 출력 내용과 공유 여부를 예상해보세요.',
-      code: `class Shape {\n  constructor(name) { this.name = name; }\n  describe() { return \`나는 \${this.name}입니다.\`; }\n}\n\nclass Circle extends Shape {\n  constructor(radius) {\n    super('원');\n    this.radius = radius;\n  }\n  describe() {\n    return super.describe() + \` 반지름은 \${this.radius}입니다.\`;\n  }\n}\nconst c = new Circle(5);\n\nconsole.log(c.describe());\nconsole.log(c.describe === Circle.prototype.describe);`,
-      answer: "나는 원입니다. 반지름은 5입니다., true",
-      explanation: "Circle은 Shape를 상속받으며 describe 메서드를 오버라이딩합니다.\n\n1. \`super.describe()\`는 프로토타입 체인을 타고 부모 클래스의 메서드를 호출합니다.\n2. 인스턴스 \`c\`의 \`describe\`는 \`Circle.prototype\`에 있는 함수와 동일한 참조를 가집니다.",
-      reflection: "클래스 상속은 결국 '프로토타입 체인'이라는 거대한 지도의 연결 고리를 확장하는 것입니다. \`super\` 키워드가 내부적으로 부모의 프로토타입을 어떻게 찾아가는지 상상해보세요."
+      keywords: ['다형성', '메서드 오버라이딩'],
+      question: '세 console.log의 출력 결과를 순서대로 예상해보세요.',
+      code: `class Animal {\n  constructor(name) {\n    this.name = name;\n  }\n  speak() {\n    return \`\${this.name}이(가) 소리를 낸다.\`;\n  }\n}\n\nclass Dog extends Animal {\n  speak() {\n    return '왈왈!';\n  }\n}\n\nclass Cat extends Animal {\n  speak() {\n    return '야옹!';\n  }\n}\n\nconst d = new Dog('멍멍이');\nconst c = new Cat('야옹이');\nconst a = new Animal('동물');\n\nconsole.log(d.speak());\nconsole.log(c.speak());\nconsole.log(a.speak());`,
+      answer: "'왈왈!', '야옹!', '동물이(가) 소리를 낸다.'",
+      explanation: "Dog와 Cat은 Animal의 speak 메서드를 오버라이딩(재정의)합니다.\n\n1. d.speak(): 프로토타입 체인에서 speak를 탐색하면 Dog.prototype.speak가 먼저 발견됩니다. → '왈왈!'\n2. c.speak(): 마찬가지로 Cat.prototype.speak가 먼저 발견됩니다. → '야옹!'\n3. a.speak(): Animal 인스턴스는 오버라이딩된 메서드가 없으므로 Animal.prototype.speak를 그대로 호출합니다. → '동물이(가) 소리를 낸다.'\n\n같은 speak()라는 이름을 호출하지만, 실제로 실행되는 코드는 각 객체의 타입에 따라 달라집니다. 이것이 다형성(Polymorphism)입니다.",
+      reflection: "다형성의 핵심은 '같은 인터페이스, 다른 동작'입니다. 동일한 speak()를 호출해도 각 객체가 자신의 프로토타입에서 먼저 메서드를 찾기 때문에 서로 다른 결과를 냅니다. Dog와 Cat에서 speak()를 지워버리면 어떤 결과가 나올까요?"
     }
   ];
 
@@ -458,9 +458,9 @@
       { reg: /\/\/.*$/gm, cls: 'hl-comment' }, // 주석
       { reg: /(['"`])(.*?)\1/g, cls: 'hl-string' }, // 문자열
       { reg: /\b(const|let|var|function|class|extends|constructor|super|return|delete|new|this)\b/g, cls: 'hl-keyword' },
-      { reg: /\b(console\.log|push|hasOwnProperty|describe|drive)\b/g, cls: 'hl-func' },
+      { reg: /\b(console\.log|push|hasOwnProperty|describe|drive|speak)\b/g, cls: 'hl-func' },
       { reg: /\b(true|false)\b/g, cls: 'hl-const' },
-      { reg: /\b(Car|Game|Shape|Circle|Array|Object|Car1|Car2)\b/g, cls: 'hl-class' },
+      { reg: /\b(Car|Game|Shape|Circle|Array|Object|Car1|Car2|Animal|Dog|Cat)\b/g, cls: 'hl-class' },
       { reg: /\b(\d+)\b/g, cls: 'hl-number' }
     ];
 
