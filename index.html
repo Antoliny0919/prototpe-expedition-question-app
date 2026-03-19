@@ -354,10 +354,6 @@
           <p id="exp-text" style="font-size: 0.95rem; color: #444; white-space: pre-wrap;"></p>
         </div>
 
-        <div class="feedback-item">
-          <h3>고민해볼 점</h3>
-          <div class="reflection-box" id="ref-text"></div>
-        </div>
       </aside>
     </div>
   </div>
@@ -490,7 +486,11 @@
       <div class="question-box">
         <h2 style="margin-bottom:1rem; font-size:1.4rem; letter-spacing:-0.5px;">Q${currentQuestionIndex + 1}. ${quiz.question}</h2>
         <div class="code-block">${highlightJS(quiz.code)}</div>
-        <div style="margin-top: 1.5rem; padding: 1.5rem; background: #f8f9fa; border-radius: 12px; border: 1px dashed #ced4da;">
+        <div class="reflection-box" style="margin-top: 1.5rem;">
+          <p style="margin-bottom: 0.5rem; font-weight: 700; color: #7c6000;">💡 생각해볼 점</p>
+          <p style="font-size: 0.9rem; color: #555; line-height: 1.6; white-space: pre-wrap;">${quiz.reflection}</p>
+        </div>
+        <div style="margin-top: 1rem; padding: 1.5rem; background: #f8f9fa; border-radius: 12px; border: 1px dashed #ced4da;">
           <p style="margin-bottom: 0.5rem; font-weight: 700; color: var(--woowa-black);">🤔 결과가 어떻게 나올지 예상되시나요?</p>
           <p style="font-size: 0.9rem; color: #666; line-height: 1.4;">코드의 흐름을 천천히 따라가 본 뒤 '정답 확인' 버튼을 눌러 행성이의 해설을 들어보세요.</p>
         </div>
@@ -511,8 +511,7 @@
       <div class="code-block" style="background:#fff; color:#333; border:1px solid #dee2e6; padding: 1rem; font-size:0.9rem; margin:0;">${highlightJS(quiz.answer)}</div>`;
 
     document.getElementById('exp-text').innerText = quiz.explanation;
-    document.getElementById('ref-text').innerText = quiz.reflection;
-    
+
     sidebar.classList.add('active');
     document.getElementById('check-btn').style.display = 'none';
     document.getElementById('next-btn').style.display = 'block';
