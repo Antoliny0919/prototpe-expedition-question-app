@@ -190,6 +190,23 @@
       border-radius: 2px;
     }
 
+    .keyword-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .keyword-tag {
+      background-color: var(--woowa-black);
+      color: var(--woowa-white);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      letter-spacing: 0.02em;
+    }
+
     .reflection-box {
       background-color: #fff9db;
       padding: 1.2rem;
@@ -379,6 +396,7 @@
   const quizData = [
     {
       id: 1,
+      keywords: ['프로토타입 체인 기본'],
       question: '다음 코드의 실행 결과를 예상해보세요.',
       code: `const arr = [1, 2, 3];\n\nconsole.log(arr.hasOwnProperty('pop'));\nconsole.log(arr.hasOwnProperty('toString'));\nconsole.log(arr.hasOwnProperty('length'));`,
       answer: "false, false, true",
@@ -387,6 +405,7 @@
     },
     {
       id: 2,
+      keywords: ['프로퍼티 섀도잉'],
       question: 'console.log의 출력 결과를 순서대로 예상해보세요.',
       code: `function Car() {}\nCar.prototype.wheels = 4;\n\nconst myCar = new Car();\n\nmyCar.wheels = 6;\nconsole.log(myCar.wheels);\n\ndelete myCar.wheels;\nconsole.log(myCar.wheels);`,
       answer: "6, 4",
@@ -395,6 +414,7 @@
     },
     {
       id: 3,
+      keywords: ['참조 타입 공유', '프로토타입 오염'],
       question: '두 console.log의 출력 배열을 예상해보세요.',
       code: `function Game() {}\nGame.prototype.scores = [10, 20];\n\nconst player1 = new Game();\nconst player2 = new Game();\n\nplayer1.scores.push(30);\n\nconsole.log(player1.scores);\nconsole.log(player2.scores);`,
       answer: "[10, 20, 30], [10, 20, 30]",
@@ -403,6 +423,7 @@
     },
     {
       id: 4,
+      keywords: ['인스턴스 메서드 vs 프로토타입 메서드', '메모리 효율'],
       question: '각 결과(true/false)를 예상해보세요.',
       code: `function Car1(brand) {\n  this.brand = brand;\n  this.drive = function() { console.log('vroom'); }\n}\nconst car1 = new Car1('hyundai');\n\nclass Car2 {\n  constructor(name) { this.name = name; }\n  drive() { console.log('vroom'); }\n}\nconst car2 = new Car2('kia');\n\nconsole.log(car1.hasOwnProperty('drive'));\nconsole.log(car2.hasOwnProperty('drive'));`,
       answer: "true, false",
@@ -411,6 +432,7 @@
     },
     {
       id: 5,
+      keywords: ['다형성'],
       question: '최종 출력 내용과 공유 여부를 예상해보세요.',
       code: `class Shape {\n  constructor(name) { this.name = name; }\n  describe() { return \`나는 \${this.name}입니다.\`; }\n}\n\nclass Circle extends Shape {\n  constructor(radius) {\n    super('원');\n    this.radius = radius;\n  }\n  describe() {\n    return super.describe() + \` 반지름은 \${this.radius}입니다.\`;\n  }\n}\nconst c = new Circle(5);\n\nconsole.log(c.describe());\nconsole.log(c.describe === Circle.prototype.describe);`,
       answer: "나는 원입니다. 반지름은 5입니다., true",
@@ -484,6 +506,9 @@
 
     container.innerHTML = `
       <div class="question-box">
+        <div class="keyword-tags">
+          ${quiz.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('')}
+        </div>
         <h2 style="margin-bottom:1rem; font-size:1.4rem; letter-spacing:-0.5px;">Q${currentQuestionIndex + 1}. ${quiz.question}</h2>
         <div class="code-block">${highlightJS(quiz.code)}</div>
         <div class="reflection-box" style="margin-top: 1.5rem;">
