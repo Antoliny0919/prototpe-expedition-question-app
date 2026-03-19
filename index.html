@@ -400,7 +400,7 @@
       question: '다음 코드의 실행 결과를 예상해보세요.',
       code: `const arr = [1, 2, 3];\n\nconsole.log(arr.hasOwnProperty('pop'));\nconsole.log(arr.hasOwnProperty('toString'));\nconsole.log(arr.hasOwnProperty('length'));`,
       answer: "false, false, true",
-      explanation: "pop은 Array.prototype에 정의된 메서드이고, toString도 Object.prototype(체인 상위)에 존재합니다. 둘 다 arr의 own property가 아니라 체인을 통해 빌려 쓰는 것이므로 false입니다.\n\n반면 length는 배열 인스턴스가 생성될 때 직접 소유하게 되는 own property이므로 true를 반환합니다.\n\n왜 length는 prototype이 아닌 인스턴스 자신이 가지고 있을까요?\n\nlength는 배열마다 다른 값을 가지는 '상태(state)'입니다. [1,2,3]의 length는 3이고, [1,2,3,4]의 length는 4입니다. 만약 length가 Array.prototype에 있다면 모든 배열이 같은 하나의 값을 공유하게 되어 이런 차이를 표현할 수 없습니다.\n\n반면 pop이나 toString 같은 메서드는 어떤 배열이 호출해도 동작 방식이 동일한 '행동(behavior)'입니다. 구현 자체가 인스턴스마다 달라질 필요가 없으므로, prototype에 하나만 올려두고 모든 인스턴스가 공유하는 것이 메모리 효율 면에서 훨씬 유리합니다.\n\n정리하면 prototype에는 모든 인스턴스가 공유할 수 있는 '공통 행동'이, 인스턴스 자신에는 개별적으로 달라지는 '고유한 상태'가 담깁니다.",
+      explanation: "hasOwnProperty는 프로토타입 체인을 타지 않고, 객체가 직접 소유한 own property인지만 확인합니다.\n\n1. pop: Array.prototype에 정의된 메서드. arr의 own property가 아니므로 false.\n2. toString: Object.prototype에 정의된 메서드. 마찬가지로 false.\n3. length: 배열 인스턴스가 생성될 때 직접 갖게 되는 own property이므로 true.\n\n인스턴스마다 값이 달라지는 '상태'는 인스턴스에, 동작 방식이 동일한 '행동'은 prototype에 둡니다.",
       reflection: "프로토타입에 있는 건 메서드만이 아닙니다. 반대로, 인스턴스가 직접 소유하는 건 값(data)만이 아닙니다. “이 프로퍼티의 실제 소유주가 누구인가”를 구분하는 것이 체인 이해의 시작입니다."
     },
     {
@@ -418,7 +418,7 @@
       question: '두 console.log의 출력 배열을 예상해보세요.',
       code: `function Game() {}\nGame.prototype.scores = [10, 20];\n\nconst player1 = new Game();\nconst player2 = new Game();\n\nplayer1.scores.push(30);\n\nconsole.log(player1.scores);\nconsole.log(player2.scores);`,
       answer: "[10, 20, 30], [10, 20, 30]",
-      explanation: "프로토타입 객체에 정의된 참조 타입(배열, 객체 등)은 모든 인스턴스가 '동일한 메모리 주소'를 공유합니다.\n\nplayer1.scores.push(30)은 인스턴스에 새로운 배열을 할당하는 것이 아니라, 체인을 타고 올라가 공유된 배열 원본을 직접 수정하는 행위입니다. 따라서 player2에게도 변화가 나타납니다.",
+      explanation: "프로토타입에 정의된 참조 타입(배열, 객체)은 모든 인스턴스가 동일한 메모리 주소를 공유합니다.\n\n1. player1.scores.push(30): 인스턴스에 새 배열을 할당하는 게 아니라, 체인을 타고 올라가 공유된 배열 원본을 직접 수정합니다.\n2. 따라서 player2.scores에도 변화가 그대로 반영됩니다.",
       reflection: "인스턴스마다 독립적인 상태를 가져야 하는 데이터(배열, 객체 등)는 반드시 생성자 함수 내부에서 `this`를 통해 선언해야 예상치 못한 버그를 막을 수 있습니다."
     },
     {
@@ -427,7 +427,7 @@
       question: '각 결과(true/false)를 예상해보세요.',
       code: `function Car1(brand) {\n  this.brand = brand;\n  this.drive = function() { console.log('vroom'); }\n}\nconst car1 = new Car1('hyundai');\n\nclass Car2 {\n  constructor(name) { this.name = name; }\n  drive() { console.log('vroom'); }\n}\nconst car2 = new Car2('kia');\n\nconsole.log(car1.hasOwnProperty('drive'));\nconsole.log(car2.hasOwnProperty('drive'));`,
       answer: "true, false",
-      explanation: "생성자 함수 내부에서 this.method로 정의한 car1의 drive는 인스턴스마다 별도로 생성되어 소유됩니다(Own Property).\n\n반면 ES6 Class 문법에서 정의한 메서드는 자바스크립트 엔진에 의해 자동으로 Prototype 객체에 등록됩니다. 따라서 car2는 drive를 소유하지 않고 체인을 통해 공유합니다.",
+      explanation: "생성자 함수와 ES6 Class는 메서드를 두는 위치가 다릅니다.\n\n1. car1.drive: this.method 형태로 선언해 인스턴스가 직접 소유합니다(Own Property). → true\n2. car2.drive: Class 문법에서 정의한 메서드는 엔진이 자동으로 prototype에 등록합니다. 인스턴스가 소유하지 않고 체인으로 공유합니다. → false",
       reflection: "메서드를 프로토타입에 두는 것이 메모리 상에서 왜 유리할까요? 1,000개의 자동차 객체를 만들 때 함수 객체가 1개 생기는 것과 1,000개 생기는 것의 차이를 생각해보세요."
     },
     {
